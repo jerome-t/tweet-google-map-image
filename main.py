@@ -20,20 +20,18 @@ google_api_key = "your_key"
 
 
 
-# Define the CSV file and size
-
-
+# --- Define the CSV file and size, get a random line from it
 def commune_random():
     # Choose a random commune from the list
     communes_list = "./20170402_communes-list.csv"
     filesize = 3431
     offset = random.randrange(filesize)
     with open(communes_list) as f:
-        f.seek(offset)
-        f.readline()
-        my_choice = f.readline()
-        return(my_choice)
+        my_choice = list(csv.reader(f))[offset]
+    return(my_choice)
 
+
+# --- Get photoref-ID, image and details from Google-map
 def get_google(my_choice):
     #Get the photoref-ID from Google
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
@@ -78,15 +76,16 @@ def get_google(my_choice):
             return
 
 
-#Post the commune name, photo and credits on Twitter:
+# --- Post the commune name, photo and credits on Twitter:
 def post_tw(my_choice, photoremark_name, photoremark_url, my_commune, my_canton):
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
     api = tweepy.API(auth)
-    tw_message = """The #Switzerland Picture of the day is from: {0}\r
-Credits: {1} - {2}\r
-Images may be subject to copyright\n
-#Switzerland_pix #{3} #{4}""".format(my_choice, photoremark_name, photoremark_url, my_commune, my_canton)
+    tw_message = """The #Switzerland Picture of the day is from: #{0} #{1}
+Credits: {2} - {3}
+--- Images may be subject to copyright ---
+Python Twitterbot by Jerome Tissieres:
+@AboutNetworks - https://aboutnetworks.net""".format(my_commune, my_canton, photoremark_name, photoremark_url)
     print(tw_message)
     # --- Here we post the Tweet - Comment if needed ---
     api.update_with_media("./switzerland_pix_of_the_day.jpg", status=tw_message)
@@ -94,9 +93,11 @@ Images may be subject to copyright\n
 
 
 
-
+# --- MAIN PART
 if __name__ == "__main__":
     my_choice = commune_random()
+    my_commune = my_choice[0]
+    my_canton = my_choice[1]
     my_commune, my_canton = my_choice.split(",")
     print("La commune du jour est: {0}, dans le canton de {1}".format(my_commune, my_canton))
     print("=" * 60)
@@ -110,11 +111,10 @@ if __name__ == "__main__":
         photoremark_name = ""
         my_choice = ""
         my_choice = commune_random()
-        my_commune, my_canton = my_choice.split(",")
+        my_commune = my_choice[0]
+        my_canton = my_choice[1]
         photoremark_name, photoremark_url = get_google(my_choice)
         print(photoremark_name)
     post_tw(my_choice, photoremark_name, photoremark_url, my_commune, my_canton)
     print("Tweet posted!")
     print("=" * 60)
-    
-    
