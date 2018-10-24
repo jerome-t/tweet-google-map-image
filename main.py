@@ -7,8 +7,6 @@ import json
 import shutil
 import tweepy
 from tweepy import OAuthHandler
-import re
-from pprint import pprint
 
 #global variables
 consumer_key = 'your_key'
