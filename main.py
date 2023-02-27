@@ -85,10 +85,10 @@ Credits: {2} - {3}
 Python Twitterbot by Jerome Tissieres:
 @AboutNetworks - https://aboutnetworks.net""".format(my_commune, my_canton, photoremark_name, photoremark_url)
     print(tw_message)
+    tw_image = "/home/aboutnetworks/switzerland_pix/switzerland_pix_of_the_day.jpg" 
     # --- Here we post the Tweet - Comment if needed ---
-    api.update_with_media("./switzerland_pix_of_the_day.jpg", status=tw_message)
+    api.update_status_with_media(tw_message,tw_image)
     # --- end Tweet post ---
-
 
 
 # --- MAIN PART
