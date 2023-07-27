@@ -12,7 +12,7 @@ from tweepy import OAuthHandler
 consumer_key = 'your_key'
 consumer_secret = 'your_secret'
 access_token = 'your_token'
-access_secret = 'your_secret'
+access_token_secret = 'your_secret'
 google_api_key = "your_key"
 
 
@@ -76,20 +76,27 @@ def get_google(my_choice):
 
 # --- Post the commune name, photo and credits on Twitter:
 def post_tw(my_choice, photoremark_name, photoremark_url, my_commune, my_canton):
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_secret)
-    api = tweepy.API(auth)
+    # --- V2 client for the post ---
+    api_v2 = tweepy.Client(
+    consumer_key=consumer_key, consumer_secret=consumer_secret,
+    access_token=access_token, access_token_secret=access_token_secret
+    )
+    # --- Message definition ---
     tw_message = """The #Switzerland Picture of the day is from: #{0} #{1}
 Credits: {2} - {3}
 --- Images may be subject to copyright ---
 Python Twitterbot by Jerome Tissieres:
 @AboutNetworks - https://aboutnetworks.net""".format(my_commune, my_canton, photoremark_name, photoremark_url)
     print(tw_message)
-    tw_image = "./switzerland_pix_of_the_day.jpg" 
-    # --- Here we post the Tweet - Comment if needed ---
-    api.update_status_with_media(tw_message,tw_image)
+    # --- Image definition and V1 client to upload it ---
+    auth = OAuthHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+    api_v1 = tweepy.API(auth)
+    media_path = "./switzerland_pix_of_the_day.jpg"
+    media = api_v1.media_upload(filename=media_path) 
+    media_id = media.media_id 
+    # --- Here we post the Tweet, with the image ---
+    api_v2.create_tweet(text=tw_message,media_ids=[media_id])
     # --- end Tweet post ---
-
 
 # --- MAIN PART
 if __name__ == "__main__":
